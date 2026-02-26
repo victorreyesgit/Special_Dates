@@ -108,44 +108,48 @@ const shareMessage = document.getElementById("shareMessage");
 const shareLink = document.getElementById("shareLink");
 const copyBtn = document.getElementById("copyBtn");
 
-const basePageLink = "https://victorreyesgit.github.io/Special_Dates/"; // tu página
+const basePageLink = "https://victorreyesgit.github.io/Special_Dates/";
 
+// Generar milestones
 function generateMilestones() {
     let set = new Set();
     for (let i = 10; i <= 999999; i++) {
         const str = i.toString();
         if (i % 1000 === 0) set.add(i);
-        if (/^(\d)\1+$/.test(str)) set.add(i);
+        if (/^(\d)\1+$/.test(str) && str[0] !== "9") set.add(i);
         if (str.length >=3 && "123456789".includes(str)) set.add(i);
     }
     return Array.from(set).sort((a,b)=>a-b);
 }
-
 const milestones = generateMilestones();
 
+// Confetti animado
 function launchConfetti() {
     for (let i = 0; i < 80; i++) {
         const conf = document.createElement("div");
         conf.className = "confetti";
         conf.style.left = Math.random()*100+"vw";
-        conf.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+        conf.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
         conf.style.animationDuration = (Math.random()*3+2)+"s";
         document.body.appendChild(conf);
         setTimeout(()=>conf.remove(),5000);
     }
 }
 
+// Abrir modal de compartir
 function openModal(days, date) {
     const url = `${basePageLink}?date=${date.toISOString().slice(0,10)}`;
-    shareMessage.textContent = `I will reach ${days.toLocaleString()} days on ${date.toLocaleDateString("en-US")}`;
+    shareMessage.textContent = `I will reach ${days.toLocaleString()} days on ${date.toLocaleDateString("en-GB")}`;
     shareLink.value = url;
     shareModal.style.display = "flex";
 }
 
+// Cerrar modal
 function closeModal() {
     shareModal.style.display = "none";
 }
 
+// Copiar al portapapeles
 copyBtn.addEventListener("click", () => {
     const text = shareMessage.textContent + "\n" + shareLink.value;
     navigator.clipboard.writeText(text)
@@ -153,10 +157,9 @@ copyBtn.addEventListener("click", () => {
         .catch(()=>alert("Could not copy."));
 });
 
-dateInput.addEventListener("change", function() {
-    if (!this.value) return;
-
-    const baseDate = new Date(this.value);
+// Función principal
+function calculateAndShow(dateValue) {
+    const baseDate = new Date(dateValue);
     const today = new Date();
     result.innerHTML = "";
 
@@ -164,13 +167,10 @@ dateInput.addEventListener("change", function() {
     milestones.forEach(days => {
         const futureDate = new Date(baseDate);
         futureDate.setDate(baseDate.getDate() + days);
-        if (futureDate > today) {
-            futureMilestones.push({days, date: futureDate});
-        }
+        if (futureDate > today) futureMilestones.push({days, date: futureDate});
     });
 
     futureMilestones.sort((a,b)=>a.date - b.date);
-
     if(futureMilestones.length===0){
         result.textContent="No upcoming special days found.";
         return;
@@ -178,14 +178,14 @@ dateInput.addEventListener("change", function() {
 
     const first = futureMilestones[0];
     const nextTen = futureMilestones.slice(1,11);
-    const daysUntilFirst = Math.ceil((first.date-today)/(1000*60*60*24));
+    const daysUntilFirst = Math.ceil((first.date - today)/(1000*60*60*24));
 
     result.innerHTML += `
         <div class="celebration">Your next special day is</div>
         <div class="big-day" style="cursor:pointer;" onclick="openModal(${first.days}, new Date('${first.date.toISOString()}'))">
             ${first.days.toLocaleString()} days
         </div>
-        <div class="date">${first.date.toLocaleDateString("en-US")} • in ${daysUntilFirst} days</div>
+        <div class="date">${first.date.toLocaleDateString("en-GB")} • in ${daysUntilFirst} days</div>
     `;
 
     if(nextTen.length>0){
@@ -194,13 +194,35 @@ dateInput.addEventListener("change", function() {
             const d = Math.ceil((item.date-today)/(1000*60*60*24));
             result.innerHTML += `
                 <div class="item" style="cursor:pointer;" onclick="openModal(${item.days}, new Date('${item.date.toISOString()}'))">
-                    ${item.days.toLocaleString()} days → ${item.date.toLocaleDateString("en-US")} (in ${d} days)
+                    ${item.days.toLocaleString()} days → ${item.date.toLocaleDateString("en-GB")} (in ${d} days)
                 </div>
             `;
         });
     }
 
+    // Confetti solo después de presionar Enter
     launchConfetti();
+}
+
+// Detectar Enter en input para calcular
+dateInput.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && dateInput.value){
+        calculateAndShow(dateInput.value);
+    }
+});
+
+// Autocompletar desde URL
+function getDateFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("date");
+}
+
+window.addEventListener("DOMContentLoaded", ()=>{
+    const urlDate = getDateFromURL();
+    if(urlDate){
+        dateInput.value = urlDate; // rellena input
+        // No calcular automáticamente: confetti solo al Enter
+    }
 });
 </script>
 
