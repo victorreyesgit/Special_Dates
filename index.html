@@ -5,79 +5,60 @@
 <title>Special Dates</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #fdfbfb, #ebedee);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 80px;
-        text-align: center;
-        overflow-x: hidden;
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow-x: hidden;
+    padding-top: 80px;
+}
 
-    h1 {
-        font-size: 32px;
-        margin-bottom: 40px;
-    }
+h1 {
+    margin-bottom: 40px;
+}
 
-    input {
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
+/* Desktop */
+@media (min-width: 768px) {
+    h1 { font-size: 36px; }
+    input { padding: 10px; font-size: 16px; border-radius: 8px; width: 200px; }
+    .big-day { font-size: 48px; font-weight: bold; margin: 20px 0; }
+    .date { font-size: 20px; margin-bottom: 20px; }
+    .celebration { margin-top: 30px; font-size: 18px; opacity: 0.7; }
+    .section-title { margin-top: 40px; font-weight: bold; font-size: 18px; opacity: 0.7; }
+    .item { font-size: 16px; margin: 12px 0; } /* más espacio entre los items */
+    #calculateBtn { display: none; }
+}
 
-    #result {
-        margin-top: 50px;
-        max-width: 600px;
+/* Mobile */
+@media (max-width: 767px) {
+    body { padding-top: 60px; }
+    h1 { font-size: 28px; margin-bottom: 30px; }
+    input { padding: 14px; font-size: 18px; width: 90%; border-radius: 10px; }
+    .big-day { font-size: 36px; font-weight: bold; margin: 18px 0; }
+    .date { font-size: 18px; margin-bottom: 18px; }
+    .celebration { margin-top: 25px; font-size: 16px; opacity: 0.7; }
+    .section-title { margin-top: 35px; font-weight: bold; font-size: 16px; opacity: 0.7; }
+    .item { font-size: 18px; margin: 16px 0; } /* más espacio en móvil */
+    #calculateBtn { 
+        display: block;
+        margin-top: 15px; 
+        padding: 12px 20px; 
+        font-size: 16px; 
+        border-radius: 10px; 
+        background: linear-gradient(90deg,#ffafbd,#ffc3a0);
+        border: none; 
+        cursor: pointer; 
     }
+}
 
-    .celebration {
-        margin-top: 30px;
-        font-size: 18px;
-        opacity: 0.7;
-    }
-
-    .big-day {
-        font-size: 48px;
-        font-weight: bold;
-        margin: 15px 0;
-    }
-
-    .date {
-        font-size: 20px;
-        margin-bottom: 20px;
-    }
-
-    .section-title {
-        margin-top: 40px;
-        font-weight: bold;
-        font-size: 18px;
-        opacity: 0.7;
-    }
-
-    .item {
-        margin: 8px 0;
-        font-size: 16px;
-    }
-
-    /* Confetti */
-    .confetti {
-        position: fixed;
-        width: 8px;
-        height: 8px;
-        background: red;
-        top: -10px;
-        animation: fall linear forwards;
-    }
-
-    @keyframes fall {
-        to {
-            transform: translateY(100vh) rotate(360deg);
-        }
-    }
+/* Result & Confetti */
+#result { margin-top: 50px; max-width: 600px; }
+.confetti { position: fixed; width: 8px; height: 8px; top: -10px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -85,10 +66,10 @@
 <h1>Special Dates</h1>
 
 <input type="date" id="dateInput">
-
+<button id="calculateBtn">Calculate Special Days</button>
 <div id="result"></div>
 
-<!-- Modal HTML -->
+<!-- Modal -->
 <div id="shareModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; 
     background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:9999;">
     <div style="background:white; padding:30px; border-radius:12px; max-width:400px; text-align:center; position:relative;">
@@ -102,87 +83,81 @@
 
 <script>
 const dateInput = document.getElementById("dateInput");
+const calculateBtn = document.getElementById("calculateBtn");
 const result = document.getElementById("result");
 const shareModal = document.getElementById("shareModal");
 const shareMessage = document.getElementById("shareMessage");
 const shareLink = document.getElementById("shareLink");
 const copyBtn = document.getElementById("copyBtn");
-
 const basePageLink = "https://victorreyesgit.github.io/Special_Dates/";
+
+// Detectar móvil
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
 // Generar milestones
 function generateMilestones() {
     let set = new Set();
-    for (let i = 10; i <= 999999; i++) {
-        const str = i.toString();
-        if (i % 1000 === 0) set.add(i);
-        if (/^(\d)\1+$/.test(str) && str[0] !== "9") set.add(i);
-        if (str.length >=3 && "123456789".includes(str)) set.add(i);
+    for(let i=10;i<=999999;i++){
+        const str=i.toString();
+        if(i%1000===0) set.add(i);
+        if(/^(\d)\1+$/.test(str) && str[0]!=="9") set.add(i);
+        if(str.length>=3 && "123456789".includes(str)) set.add(i);
     }
     return Array.from(set).sort((a,b)=>a-b);
 }
 const milestones = generateMilestones();
 
-// Confetti animado
+// Confetti
 function launchConfetti() {
-    for (let i = 0; i < 80; i++) {
+    for(let i=0;i<80;i++){
         const conf = document.createElement("div");
-        conf.className = "confetti";
-        conf.style.left = Math.random()*100+"vw";
-        conf.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
-        conf.style.animationDuration = (Math.random()*3+2)+"s";
+        conf.className="confetti";
+        conf.style.left=Math.random()*100+"vw";
+        conf.style.backgroundColor=`hsl(${Math.random()*360},100%,50%)`;
+        conf.style.animationDuration=(Math.random()*3+2)+"s";
         document.body.appendChild(conf);
         setTimeout(()=>conf.remove(),5000);
     }
 }
 
-// Abrir modal de compartir
-function openModal(days, date) {
+// Modal
+function openModal(days,date){
     const url = `${basePageLink}?date=${date.toISOString().slice(0,10)}`;
     shareMessage.textContent = `I will reach ${days.toLocaleString()} days on ${date.toLocaleDateString("en-GB")}`;
     shareLink.value = url;
-    shareModal.style.display = "flex";
+    shareModal.style.display="flex";
 }
-
-// Cerrar modal
-function closeModal() {
-    shareModal.style.display = "none";
-}
-
-// Copiar al portapapeles
-copyBtn.addEventListener("click", () => {
-    const text = shareMessage.textContent + "\n" + shareLink.value;
-    navigator.clipboard.writeText(text)
-        .then(()=>alert("Copied to clipboard!"))
-        .catch(()=>alert("Could not copy."));
+function closeModal(){ shareModal.style.display="none"; }
+copyBtn.addEventListener("click", ()=>{
+    const text = shareMessage.textContent+"\n"+shareLink.value;
+    navigator.clipboard.writeText(text).then(()=>alert("Copied to clipboard!")).catch(()=>alert("Could not copy."));
 });
 
-// Función principal
-function calculateAndShow(dateValue) {
-    const baseDate = new Date(dateValue);
-    const today = new Date();
-    result.innerHTML = "";
+// Calcular y mostrar hitos
+function calculateAndShow(dateValue, showConfetti=true){
+    const baseDate=new Date(dateValue);
+    const today=new Date();
+    result.innerHTML="";
 
-    let futureMilestones = [];
-    milestones.forEach(days => {
-        const futureDate = new Date(baseDate);
-        futureDate.setDate(baseDate.getDate() + days);
-        if (futureDate > today) futureMilestones.push({days, date: futureDate});
+    let futureMilestones=[];
+    milestones.forEach(days=>{
+        const futureDate=new Date(baseDate);
+        futureDate.setDate(baseDate.getDate()+days);
+        if(futureDate>today) futureMilestones.push({days,date:futureDate});
     });
 
-    futureMilestones.sort((a,b)=>a.date - b.date);
-    if(futureMilestones.length===0){
-        result.textContent="No upcoming special days found.";
-        return;
-    }
+    futureMilestones.sort((a,b)=>a.date-b.date);
+    if(futureMilestones.length===0){ result.textContent="No upcoming special days found."; return; }
 
-    const first = futureMilestones[0];
-    const nextTen = futureMilestones.slice(1,11);
-    const daysUntilFirst = Math.ceil((first.date - today)/(1000*60*60*24));
+    const first=futureMilestones[0];
+    const nextTen=futureMilestones.slice(1,11);
+    const daysUntilFirst=Math.ceil((first.date-today)/(1000*60*60*24));
 
-    result.innerHTML += `
+    result.innerHTML+=`
         <div class="celebration">Your next special day is</div>
-        <div class="big-day" style="cursor:pointer;" onclick="openModal(${first.days}, new Date('${first.date.toISOString()}'))">
+        <div class="big-day" style="cursor:pointer;" onclick="openModal(${first.days},new Date('${first.date.toISOString()}'))">
             ${first.days.toLocaleString()} days
         </div>
         <div class="date">${first.date.toLocaleDateString("en-GB")} • in ${daysUntilFirst} days</div>
@@ -200,44 +175,26 @@ function calculateAndShow(dateValue) {
         });
     }
 
-    // Confetti solo después de presionar Enter
-    launchConfetti();
+    if(showConfetti) launchConfetti();
 }
 
-// Detectar Enter en input para calcular
-dateInput.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter" && dateInput.value){
-        calculateAndShow(dateInput.value);
-    }
-});
-// Detecta si estamos en móvil (no escritorio)
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-// Ejecutar solo en móviles
+// Eventos
 if(isMobile()){
-    dateInput.addEventListener("change", ()=>{
-        if(dateInput.value){
-            calculateAndShow(dateInput.value, false); // confetti opcional
-        }
-    });
+    calculateBtn.style.display="block";
+    calculateBtn.addEventListener("click", ()=>{ if(dateInput.value) calculateAndShow(dateInput.value,false); });
+}else{
+    dateInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter" && dateInput.value) calculateAndShow(dateInput.value,true); });
 }
 
 // Autocompletar desde URL
-function getDateFromURL() {
-    const params = new URLSearchParams(window.location.search);
+function getDateFromURL(){
+    const params=new URLSearchParams(window.location.search);
     return params.get("date");
 }
-
-window.addEventListener("DOMContentLoaded", ()=>{
-    const urlDate = getDateFromURL();
-    if(urlDate){
-        dateInput.value = urlDate; // rellena input
-        // No calcular automáticamente: confetti solo al Enter
-    }
+window.addEventListener("DOMContentLoaded",()=>{
+    const urlDate=getDateFromURL();
+    if(urlDate) dateInput.value=urlDate; // no calcular automáticamente
 });
 </script>
-
 </body>
 </html>
