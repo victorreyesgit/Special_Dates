@@ -210,6 +210,19 @@ dateInput.addEventListener("keydown", (e)=>{
         calculateAndShow(dateInput.value);
     }
 });
+// Detecta si estamos en móvil (no escritorio)
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Ejecutar solo en móviles
+if(isMobile()){
+    dateInput.addEventListener("change", ()=>{
+        if(dateInput.value){
+            calculateAndShow(dateInput.value, false); // confetti opcional
+        }
+    });
+}
 
 // Autocompletar desde URL
 function getDateFromURL() {
