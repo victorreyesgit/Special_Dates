@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Special Dates</title>
-    <!-- Link al CSS externo -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,12 +13,22 @@
     <header>
         <h1 class="title">Special Dates</h1>
         <h2 class="subtitle">Because birthdays are not the only special days to celebrate!</h2>
+
+        <!-- Language toggle with flags -->
+        <div id="langIcon" class="lang-icon">
+            🌐
+            <div id="langMenu" class="lang-menu">
+                <img src="flags/en.png" alt="English" data-lang="en">
+                <img src="flags/es.png" alt="Español" data-lang="es">
+            </div>
+        </div>
     </header>
 
     <!-- ==========================
          INPUT DE FECHA
     ========================== -->
     <div class="input-container">
+        <label class="input-label" for="dateInput">Enter your birthday</label>
         <input type="text" id="dateInput" placeholder="DD/MM/YYYY">
     </div>
 
@@ -30,7 +39,7 @@
 
     <!-- ==========================
          MODAL DE COMPARTIR
-    ======================cum==== -->
+    ========================== -->
     <div id="shareModal" class="modal">
         <div class="modal-content">
             <h2>Share your special day!</h2>
