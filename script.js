@@ -69,7 +69,7 @@ function launchConfetti(){
 // MODAL COMPARTIR
 // ==========================
 function openModal(days, date){
-    const url = `${basePageLink}?date=${date.toISOString().slice(0,10)}`;
+    const url = basePageLink;
     const t = texts[lang];
     shareMessage.textContent = `${t.shareMessage} ${days.toLocaleString()} ${t.days} ${t.inDays} ${date.toLocaleDateString("en-GB")}`;
     shareLink.value = url;
