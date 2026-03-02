@@ -20,13 +20,15 @@ const texts = {
         title: "Special Dates",
         subtitle: "Because birthdays are not the only special days to celebrate!",
         enterBirthday: "Enter your birthday and guess how many days you've lived",
-        youHave: "You have",
+        youHave: "You lived",
         nextDayVersary: "Your next day-versary is",
         nextDay: "Your next special day is",
         upcoming: "Upcoming special dates",
-        shareMessage: "I will reach",
+        shareMessage: "I will be",
         days: "days",
+        daysold: "days old",
         inDays: "in",
+        inDate: "on",
         noUpcoming: "No upcoming special days found."
     },
     es: {
@@ -39,7 +41,9 @@ const texts = {
         upcoming: "Próximas fechas especiales",
         shareMessage: "Cumpliré",
         days: "días",
+        daysold: "días",
         inDays: "en",
+        inDate: "el",
         noUpcoming: "No se encontraron días especiales futuros."
     }
 };
@@ -49,14 +53,60 @@ const texts = {
 // ==========================
 function generateMilestones() {
     let set = new Set();
-    for(let i=10;i<=999999;i++){
+
+    for (let i = 9; i <= 1000000; i++) {
         const str = i.toString();
-        if(i%1000===0) set.add(i);
-        if(/^(\d)\1+$/.test(str) && str[0]!=="9") set.add(i);
-        if(str.length>=3 && "123456789".includes(str)) set.add(i);
+
+        // Múltiplos de 100 (ya lo tenías)
+        if (i % 1000 === 0) set.add(i);
+
+        // Todos los dígitos iguales (111, 2222...)
+        if (/^(\d)\1+$/.test(str)) set.add(i);
+
+        // Contiene 123456789 (ya lo tenías)
+        if (str.length >= 3 && "123456789".includes(str)) set.add(i);
+
+        // Capicúa (palíndromo)
+        if (str.length >= 4 && str === str.split("").reverse().join("")) set.add(i);
+
+        // Alternancia tipo 1212, 3434, 5656
+        if (/^(\d)(\d)\1\2+$/.test(str)) set.add(i);
+
+        // Mitades iguales (123123, 4545)
+        if (str.length % 2 === 0 &&
+            str.slice(0, str.length/2) === str.slice(str.length/2))
+            set.add(i);
+
+        // Forma ABCBA (12321, 45654)
+        if (/^(\d)(\d)(\d)\2\1$/.test(str)) set.add(i);
+
+        // Forma ABCCBA (123321, 4554)
+        if (/^(\d)(\d)(\d)\3\2\1$/.test(str)) set.add(i);
+
+
+        // Bloque triple tipo 111000111
+        if (/^(\d)\1{1,}0+(\d)\2{1,}$/.test(str)) set.add(i);
+
+        // Patrón 101010, 202020
+        if (/^(\d)0\1(0\1)+$/.test(str)) set.add(i);
+
+        // Dos bloques iguales separados por algo (12121, 34343)
+        if (/^(\d)(\d)\1(\d)\1$/.test(str)) set.add(i);
+
+        // Efecto espejo parcial (123321, 1221, 4554)
+        if (str.length >= 4) {
+            const half = Math.floor(str.length / 2);
+            const left = str.slice(0, half);
+            const right = str.slice(-half);
+            if (left === right.split("").reverse().join("")) {
+                set.add(i);
+            }
+        }
     }
-    return Array.from(set).sort((a,b)=>a-b);
+
+    return Array.from(set).sort((a, b) => a - b);
 }
+
 const milestones = generateMilestones();
 
 // ==========================
@@ -80,7 +130,7 @@ function launchConfetti(){
 function openModal(days, date){
     const url = basePageLink;
     const t = texts[lang];
-    shareMessage.textContent = `${t.shareMessage} ${days.toLocaleString()} ${t.days} ${t.inDays} ${date.toLocaleDateString("en-GB")}`;
+    shareMessage.textContent = `${t.shareMessage} ${days.toLocaleString()} ${t.daysold} ${t.inDate} ${date.toLocaleDateString("en-GB")}`;
     shareLink.value = url;
     shareModal.style.display = "flex";
 }
@@ -161,7 +211,7 @@ function calculateAndShow(dateValue){
     }
 
     const first = futureMilestones[0];
-    const nextTen = futureMilestones.slice(1,11);
+    const nextTen = futureMilestones.slice(1,4);
     const daysUntilFirst = Math.ceil((first.date - today)/(1000*60*60*24));
 
     // mostrar siguiente day-versary
