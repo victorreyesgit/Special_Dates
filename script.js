@@ -1,7 +1,7 @@
 // ==========================
 // VARIABLES PRINCIPALES
 // ==========================
-let lang = 'es'; // idioma por defecto
+let lang = localStorage.getItem("lang") || 'es'; // idioma por defecto o guardado
 const dateInput = document.getElementById("dateInput");
 const result = document.getElementById("result");
 const shareModal = document.getElementById("shareModal");
@@ -10,27 +10,36 @@ const shareLink = document.getElementById("shareLink");
 const copyBtn = document.getElementById("copyBtn");
 const basePageLink = "https://victorreyesgit.github.io/Special_Dates/";
 const langMenuImages = document.querySelectorAll("#langMenu img");
+const langIcon = document.getElementById("langIcon");
 
 // ==========================
 // TEXTOS SEGÚN IDIOMA
 // ==========================
 const texts = {
     en: {
+        title: "Special Dates",
+        subtitle: "Because birthdays are not the only special days to celebrate!",
+        enterBirthday: "Enter your birthday and guess how many days you've lived",
+        youHave: "You have",
+        nextDayVersary: "Your next day-versary is",
         nextDay: "Your next special day is",
         upcoming: "Upcoming special dates",
         shareMessage: "I will reach",
-        enterBirthday: "Enter your birthday",
         days: "days",
         inDays: "in",
         noUpcoming: "No upcoming special days found."
     },
     es: {
+        title: "Fechas Especiales",
+        subtitle: "Porque los cumpleaños no son los únicos días especiales para celebrar!",
+        enterBirthday: "Pon aquí tu cumpleaños y adivina cuántos días tienes",
+        youHave: "Tienes",
+        nextDayVersary: "Tu siguiente cumpledía es",
         nextDay: "Tu próximo día especial es",
         upcoming: "Próximas fechas especiales",
         shareMessage: "Cumpliré",
-        enterBirthday: "Pon aquí tu cumpleaños",
         days: "días",
-        inDays: "el",
+        inDays: "en",
         noUpcoming: "No se encontraron días especiales futuros."
     }
 };
@@ -90,10 +99,8 @@ copyBtn.addEventListener("click", ()=>{
 // ==========================
 function updateTexts(){
     const t = texts[lang];
-    document.querySelector(".subtitle").textContent = lang==='en' 
-        ? "Because birthdays are not the only special days to celebrate!" 
-        : "Porque los cumpleaños no son los únicos días especiales para celebrar!";
-    document.querySelector("label.input-label").textContent = t.enterBirthday;
+    document.querySelector(".subtitle").textContent = t.subtitle;
+    document.querySelector(".input-label").textContent = t.enterBirthday;
 
     // actualizar resultados ya calculados
     const celebrationDiv = document.querySelector(".celebration");
@@ -135,6 +142,11 @@ function calculateAndShow(dateValue){
     const today = new Date();
     result.innerHTML="";
 
+    // calcular cuántos días vividos
+    const daysLived = Math.floor((today - baseDate)/(1000*60*60*24));
+    const t = texts[lang];
+    result.innerHTML += `<div class="celebration">${t.youHave} ${daysLived.toLocaleString()} ${t.days}</div>`;
+
     let futureMilestones=[];
     milestones.forEach(days=>{
         const futureDate = new Date(baseDate);
@@ -144,25 +156,24 @@ function calculateAndShow(dateValue){
 
     futureMilestones.sort((a,b)=>a.date-b.date);
     if(futureMilestones.length===0){
-        result.textContent = texts[lang].noUpcoming;
+        result.innerHTML += `<div>${t.noUpcoming}</div>`;
         return;
     }
 
     const first = futureMilestones[0];
     const nextTen = futureMilestones.slice(1,11);
     const daysUntilFirst = Math.ceil((first.date - today)/(1000*60*60*24));
-    const t = texts[lang];
 
-    // mostrar primer día
+    // mostrar siguiente day-versary
     result.innerHTML += `
-        <div class="celebration">${t.nextDay}</div>
+        <div class="celebration">${t.nextDayVersary}</div>
         <div class="big-day" onclick="openModal(${first.days}, new Date('${first.date.toISOString()}'))">
             ${first.days.toLocaleString()} ${t.days}
         </div>
         <div class="date">${first.date.toLocaleDateString("en-GB")} • ${t.inDays} ${daysUntilFirst} ${t.days}</div>
     `;
 
-    // siguientes
+    // próximos
     if(nextTen.length>0){
         result.innerHTML += `<div class="section-title">${t.upcoming}</div>`;
         nextTen.forEach(item=>{
@@ -181,8 +192,8 @@ function calculateAndShow(dateValue){
 // ==========================
 // AUTO-FORMATEO DD/MM/YYYY
 // ==========================
-dateInput.addEventListener("input", (e) => {
-    let val = dateInput.value.replace(/\D/g, "");
+dateInput.addEventListener("input", (e)=>{
+    let val = dateInput.value.replace(/\D/g,"");
     if(val.length>2) val = val.slice(0,2)+"/"+val.slice(2);
     if(val.length>5) val = val.slice(0,5)+"/"+val.slice(5,9);
     dateInput.value = val;
@@ -193,21 +204,26 @@ dateInput.addEventListener("input", (e) => {
 });
 
 // ==========================
-// DETECCIÓN CAMBIO DE IDIOMA
+// MENU IDIOMAS
 // ==========================
+langIcon.addEventListener("click", (e)=>{
+    const menu = document.getElementById("langMenu");
+    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    e.stopPropagation();
+});
+
 langMenuImages.forEach(img => {
     img.addEventListener("click", () => {
         lang = img.dataset.lang;
-        updateTexts();
-        document.getElementById("langMenu").style.display="none";
+        localStorage.setItem("lang", lang); // guardar idioma
+        location.reload(); // recarga para reiniciar textos y cálculos
     });
 });
 
-// Cerrar menú si clic fuera
+// cerrar menú si clic fuera
 document.addEventListener("click",(e)=>{
     const menu = document.getElementById("langMenu");
-    const icon = document.getElementById("langIcon");
-    if(!icon.contains(e.target)) menu.style.display="none";
+    if(!langIcon.contains(e.target)) menu.style.display="none";
 });
 
 // ==========================
