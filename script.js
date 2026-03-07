@@ -94,6 +94,7 @@ function launchConfetti(){
     }
 }
 
+
 // ==========================
 // MODAL COMPARTIR
 // ==========================
