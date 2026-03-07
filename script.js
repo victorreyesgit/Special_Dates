@@ -98,11 +98,12 @@ function launchConfetti(){
 // MODAL COMPARTIR
 // ==========================
 function openModal(days, date){
+    const url = basePageLink;
     const t = texts[lang];
-
-    const parts = dateInput.value.split("/");
-    const birthParam = `${parts[2]}-${parts[1]}-${parts[0]}`;
-    const url = `${basePageLink}?date=${birthParam}`;
+    shareMessage.textContent = `${t.shareMessage} ${days.toLocaleString()} ${t.daysold} ${t.inDate} ${date.toLocaleDateString("en-GB")}`;
+    shareLink.value = url;
+    shareModal.style.display = "flex";
+}
 
 function closeModal(){ shareModal.style.display="none"; }
 
