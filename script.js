@@ -54,54 +54,24 @@ const texts = {
 function generateMilestones() {
     let set = new Set();
 
-    for (let i = 9; i <= 1000000; i++) {
-        const str = i.toString();
-
-        // Múltiplos de 100 (ya lo tenías)
-        if (i % 1000 === 0) set.add(i);
-
-        // Todos los dígitos iguales (111, 2222...)
-        if (/^(\d)\1+$/.test(str)) set.add(i);
-
-        // Contiene 123456789 (ya lo tenías)
-        if (str.length >= 3 && "123456789".includes(str)) set.add(i);
-
-        // Capicúa (palíndromo)
-        if (str.length >= 4 && str === str.split("").reverse().join("")) set.add(i);
-
-        // Alternancia tipo 1212, 3434, 5656
-        if (/^(\d)(\d)\1\2+$/.test(str)) set.add(i);
-
-        // Mitades iguales (123123, 4545)
-        if (str.length % 2 === 0 &&
-            str.slice(0, str.length/2) === str.slice(str.length/2))
-            set.add(i);
-
-        // Forma ABCBA (12321, 45654)
-        if (/^(\d)(\d)(\d)\2\1$/.test(str)) set.add(i);
-
-        // Forma ABCCBA (123321, 4554)
-        if (/^(\d)(\d)(\d)\3\2\1$/.test(str)) set.add(i);
-
-
-        // Bloque triple tipo 111000111
-        if (/^(\d)\1{1,}0+(\d)\2{1,}$/.test(str)) set.add(i);
-
-        // Patrón 101010, 202020
-        if (/^(\d)0\1(0\1)+$/.test(str)) set.add(i);
-
-        // Dos bloques iguales separados por algo (12121, 34343)
-        if (/^(\d)(\d)\1(\d)\1$/.test(str)) set.add(i);
-
-        // Efecto espejo parcial (123321, 1221, 4554)
-        if (str.length >= 4) {
-            const half = Math.floor(str.length / 2);
-            const left = str.slice(0, half);
-            const right = str.slice(-half);
-            if (left === right.split("").reverse().join("")) {
-                set.add(i);
-            }
+    // números con todos los dígitos iguales (excepto 9)
+    for (let d = 1; d <= 8; d++) {
+        let str = "";
+        while (Number(str + d) <= 1000000) {
+            str += d;
+            set.add(Number(str));
         }
+    }
+
+    // múltiplos de 100 menores que 1000
+    for (let i = 100; i < 1000; i += 100) {
+        set.add(i);
+    }
+
+
+     // Mas
+    for (let i = 1000; i <= 1000000; i += 1000) {
+        set.add(i);
     }
 
     return Array.from(set).sort((a, b) => a - b);
@@ -128,12 +98,11 @@ function launchConfetti(){
 // MODAL COMPARTIR
 // ==========================
 function openModal(days, date){
-    const url = basePageLink;
     const t = texts[lang];
-    shareMessage.textContent = `${t.shareMessage} ${days.toLocaleString()} ${t.daysold} ${t.inDate} ${date.toLocaleDateString("en-GB")}`;
-    shareLink.value = url;
-    shareModal.style.display = "flex";
-}
+
+    const parts = dateInput.value.split("/");
+    const birthParam = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    const url = `${basePageLink}?date=${birthParam}`;
 
 function closeModal(){ shareModal.style.display="none"; }
 
