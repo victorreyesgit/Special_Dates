@@ -1,7 +1,10 @@
 // ==========================
 // VARIABLES PRINCIPALES
 // ==========================
-let lang = localStorage.getItem("lang") || 'es'; // idioma por defecto o guardado
+// Idioma guardado con prefijo propio (todas las apps comparten dominio); migra la clave antigua "lang"
+const LANG_KEY = "vr-special_dates:lang";
+let lang = localStorage.getItem(LANG_KEY) || localStorage.getItem("lang") || 'es'; // idioma por defecto o guardado
+if (localStorage.getItem("lang") !== null) { localStorage.setItem(LANG_KEY, lang); localStorage.removeItem("lang"); }
 const dateInput = document.getElementById("dateInput");
 const result = document.getElementById("result");
 const shareModal = document.getElementById("shareModal");
@@ -236,7 +239,7 @@ langIcon.addEventListener("click", (e)=>{
 langMenuImages.forEach(img => {
     img.addEventListener("click", () => {
         lang = img.dataset.lang;
-        localStorage.setItem("lang", lang); // guardar idioma
+        localStorage.setItem(LANG_KEY, lang); // guardar idioma
         location.reload(); // recarga para reiniciar textos y cálculos
     });
 });

@@ -1,6 +1,6 @@
 // Offline helper. Online: always loads the newest version. Offline: opens the saved copy.
 // Bump the version number if installed copies ever need to drop old files.
-const CACHE = 'vr-special_dates-v1';
+const CACHE = 'vr-special_dates-v2';
 const PREFIX = 'vr-special_dates-';   // only this app's caches: other apps share the same domain
 const FILES = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {
